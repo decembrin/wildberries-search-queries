@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    container_name: App
+    command: python -m presenters.http.server
+    env_file:
+      - .env
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    volumes:
+      - ./src:/usr/src/app
+      - ./docker/app/.tmp:/tmp
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./docker/worker/Dockerfile
+    container_name: Worker
+    command: python -m infrastructure.workers.celery.worker
+    env_file:
+      - .env
+    volumes:
+      - ./src:/usr/src/app
+      - ./docker/worker/.tmp:/tmp
+
+  postgresql:
+    image: decembrin/pg_partman:16-5.2.4-alpine
+    env_file:
+      - .env
+    volumes:
+      - ./docker/postgresql/init-extensions.sql:/docker-entrypoint-initdb.d/init-extensions.sql
+      - postgres_volume_2:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  rabbitmq:
+    image: rabbitmq:3.9.25-alpine
+    container_name: RabbitMQ
+    ports:
+      - 15672:15672
+    volumes:
+      - ./docker/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ./docker/rabbitmq/conf.d/10-defaults.conf:/etc/rabbitmq/conf.d/10-defaults.conf
+      - ./docker/rabbitmq/conf.d/management_agent.disable_metrics_collector.conf:/etc/rabbitmq/conf.d/management_agent.disable_metrics_collector.conf
+      - rabbitmq_volume:/var/lib/rabbitmq
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: Redis
+    volumes:
+      - redis_volume:/data
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - 5051:80
+    volumes:
+      - pgadmin_volume:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=default@mail.ru
+      - PGADMIN_DEFAULT_PASSWORD=password1
+
+volumes:
+  postgres_volume_2:
+  postgres_volume:
+  rabbitmq_volume:
+  pgadmin_volume:
+  redis_volume:

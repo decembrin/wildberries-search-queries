@@ -1,0 +1,48 @@
+{
+    "rabbit_version": "3.9.25",
+    "rabbitmq_version": "3.9.25",
+    "product_name": "RabbitMQ",
+    "product_version": "3.9.25",
+    "users": [
+        {
+            "name": "user",
+            "password": "password",
+            "tags": [
+                "administrator"
+            ],
+            "limits": {}
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/"
+        },
+        {
+            "name": "wildberries-search-queries"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "user",
+            "vhost": "wildberries-search-queries",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "topic_permissions": [
+        {
+            "user": "user",
+            "vhost": "wildberries-search-queries",
+            "exchange": "",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "parameters": [],
+    "global_parameters": [],
+    "policies": [],
+    "queues": [],
+    "exchanges": [],
+    "bindings": []
+}

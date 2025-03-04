@@ -1,0 +1,1 @@
+from .search_query_repository_cache_proxy import SearchQueryRepositoryCacheProxy
